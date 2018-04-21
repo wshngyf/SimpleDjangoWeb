@@ -54,7 +54,9 @@ ROOT_URLCONF = 'SimpleWeb.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        #这里需要指定模板的位置
+        'DIRS': [os.path.join(BASE_DIR, 'LicensePlateManage/templates'),
+                 ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
