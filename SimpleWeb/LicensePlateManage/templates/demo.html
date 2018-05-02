@@ -22,7 +22,7 @@
 
 <script type="text/javascript">
  $(function () {
-     $("#table").bootstrapTable({ // 对应table标签的id
+    var t =  $("#table").bootstrapTable({ // 对应table标签的id
          url: 'http://localhost:8000/index',
          method: 'get',
          dataType: "json",
@@ -30,7 +30,7 @@
          undefinedText: "空",//当数据为 undefined 时显示的字符
          pagination: true, //分页
          // paginationLoop:true,//设置为 true 启用分页条无限循环的功能。
-         showToggle: "true",//是否显示 切换试图（table/card）按钮
+         showToggle: "false",//是否显示 切换试图（table/card）按钮
          showColumns: "true",//是否显示 内容列下拉框
          pageNumber: 1,//如果设置了分页，首页页码
          // showPaginationSwitch:true,//是否显示 数据条数选择框
@@ -48,6 +48,7 @@
                  ps: params.limit//找多少条
              };
          },
+         idField: "province",//指定主键列
          columns: [
              {
                  field: 'province', // 返回json数据中的name
@@ -90,7 +91,11 @@
              console.info("加载数据失败");
          }
 
-     })
+     });
+       t.on('load-success.bs.table', function (data) {//table加载成功后的监听函数
+        console.log("load success");
+        $(".pull-right").css("display", "block");
+      });
  });
 
 </script>

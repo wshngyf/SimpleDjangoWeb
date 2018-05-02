@@ -20,5 +20,6 @@ from LicensePlateManage import views
 urlpatterns = [
     path('demo/',views.demo),
     path('index/',views.index),
+    path('addData',views.addData),
     path('admin/', admin.site.urls),
 ]
