@@ -18,6 +18,7 @@ from django.urls import path
 from LicensePlateManage import views
 
 urlpatterns = [
+    path('demo/',views.demo),
     path('index/',views.index),
     path('admin/', admin.site.urls),
 ]

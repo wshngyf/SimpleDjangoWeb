@@ -4,4 +4,4 @@ from LicensePlateManage.models import LicensePlate
 class LicenseSerializers(serializers.ModelSerializer):
     class Meta:
         model=LicensePlate
-        fields=('province','city','license','licenseplate','phonenum','carnum')
+        fields=('province','city','license','licenseplate','phonenum','carnum',)
