@@ -6,9 +6,20 @@ import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def index(request):
-    licenseplate = LicensePlate.objects.all()
+    phone=request.GET.get('phone')
+    plate=request.GET.get('plate')
+    time=request.GET.get('time')
     pageSize = request.GET.get('pageSize')
     page=int(request.GET.get('offset'))
+    if not phone=='':
+        licenseplate = LicensePlate.objects.filter(phonenum=phone)
+    elif not plate =='':
+        licenseplate = LicensePlate.objects.filter(licenseplate=plate)
+    elif not time =='':
+        licenseplate = LicensePlate.objects.filter(startdate=time)
+    else:
+        licenseplate = LicensePlate.objects.all()
+
     paginator = Paginator(licenseplate, pageSize)
     page=page/5+1
     serializer = LicenseSerializers(paginator.page(page), many=True)
