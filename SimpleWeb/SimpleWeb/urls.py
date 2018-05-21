@@ -21,5 +21,7 @@ urlpatterns = [
     path('demo/',views.demo),
     path('index/',views.index),
     path('addData',views.addData),
+    path('downExcel/',views.downExcel),
     path('admin/', admin.site.urls),
+
 ]

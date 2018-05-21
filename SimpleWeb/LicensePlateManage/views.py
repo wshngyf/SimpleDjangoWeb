@@ -4,6 +4,10 @@ from LicensePlateManage.models import LicensePlate
 from LicensePlateManage.serializer import LicenseSerializers
 import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.decorators import login_required
+from xlwt import *
+import os
+from io import StringIO
 
 def index(request):
     phone=request.GET.get('phone')
@@ -30,7 +34,7 @@ def index(request):
     #str={"rows": [{"province": "豫","city": "A","license": "00001","licenseplate": "豫A00001","phonenum": "13939112345","carnum": "2341243235345"}],"page": 1,"total": 1}
     return HttpResponse(str)
 
-
+@login_required
 def demo(request):
     return render(request, "demo.html")
 
@@ -39,5 +43,45 @@ def addData(request):
     data.save()
     return HttpResponse("添加数据成功")
 
+def downExcel(request):
+    licenseplate = LicensePlate.objects.all()
+    if licenseplate:
+        ws = Workbook(encoding='utf-8')
+        w = ws.add_sheet(u"sheet1")
+        w.write(0, 0, "车牌")
+        w.write(0, 1, u"省份")
+        w.write(0, 2, u"城市")
+        w.write(0, 3, u"牌号")
+        w.write(0, 4, u"手机号")
+        # 写入数据
+        excel_row = 1
+        for obj in licenseplate:
+            data_num = obj.carnum
+            data_province = obj.province
+            data_city = obj.city
+            data_license = obj.license
+            dada_phonenum = obj.phonenum
+            w.write(excel_row, 0, data_num)
+            w.write(excel_row, 1, data_province)
+            w.write(excel_row, 2, data_city)
+            w.write(excel_row, 3, data_license)
+            w.write(excel_row, 4, dada_phonenum)
+            excel_row += 1
+            # 检测文件是够存在
+        # 方框中代码是保存本地文件使用，如不需要请删除该代码
+        ###########################
+        exist_file = os.path.exists("test.xls")
+        if exist_file:
+            os.remove(r"test.xls")
+        ws.save("test.xls")
+        ############################
+        #sio =StringIO.StringIO()
+        #ws.save(sio)
+        #sio.seek(0)
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=test.xls'
+        #response.write(sio.getvalue())
+        ws.save(response)
+        return HttpResponse(response)
 
 # Create your views here.
