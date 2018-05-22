@@ -1,14 +1,16 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from LicensePlateManage.models import LicensePlate
+from LicensePlateManage.models import PhoneNum
 from LicensePlateManage.serializer import LicenseSerializers
+import time
+import  datetime as dt
 import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from xlwt import *
 import os
-from io import StringIO
-
+from io import BytesIO
 def index(request):
     phone=request.GET.get('phone')
     plate=request.GET.get('plate')
@@ -34,7 +36,7 @@ def index(request):
     #str={"rows": [{"province": "豫","city": "A","license": "00001","licenseplate": "豫A00001","phonenum": "13939112345","carnum": "2341243235345"}],"page": 1,"total": 1}
     return HttpResponse(str)
 
-@login_required
+
 def demo(request):
     return render(request, "demo.html")
 
@@ -43,29 +45,73 @@ def addData(request):
     data.save()
     return HttpResponse("添加数据成功")
 
+#createDate=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+def addTest(request):
+    data=PhoneNum(province='豫',city='A',phoneNum='19937127339',carnum='00001',remark='',createDate=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
+    data.save()
+    return HttpResponse("添加数据成功")
+
+def addLicense(request):
+    province=request.GET.get('province')
+    city=request.GET.get('city')
+    phonenum=request.GET.get('phoneNum')
+    carnum=request.GET.get('carnum')
+    remark=request.GET.get('remark')
+    author=request.GET.get('author')
+
+    data=PhoneNum(province=province,city=city,phoneNum=phonenum,carnum=carnum,licenseplate=province+city+carnum,remark=remark,createDate=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),author=author)
+    data.save()
+    return HttpResponse("添加数据成功")
+
 def downExcel(request):
-    licenseplate = LicensePlate.objects.all()
-    if licenseplate:
+    Licenseplate = PhoneNum.objects.all()
+    if Licenseplate is None:
+        return
+    # 居中格式
+    alignment = Alignment()
+    alignment.horz = Alignment.HORZ_CENTER
+    alignment.vert = Alignment.VERT_CENTER
+    style2 = XFStyle()
+    style2.alignment=alignment
+
+    # 日期格式
+    style1 = XFStyle()
+    style1.num_format_str = 'M/D/YY h:mm'
+    style1.alignment = alignment
+
+    if Licenseplate:
         ws = Workbook(encoding='utf-8')
         w = ws.add_sheet(u"sheet1")
-        w.write(0, 0, "车牌")
-        w.write(0, 1, u"省份")
-        w.write(0, 2, u"城市")
-        w.write(0, 3, u"牌号")
-        w.write(0, 4, u"手机号")
+        w.write(0, 0, u"省份",style2)
+        w.write(0, 1, u"城市",style2)
+        w.write(0, 2, u"牌号",style2)
+        w.write(0, 3, u"车牌号",style2)
+        w.write(0, 4, u"手机号",style2)
+        w.write(0, 5, u"备注",style2)
+        w.write(0, 6, u"采集人",style2)
+        w.write(0, 7, u"添加时间",style1)
+        w.col(4).width = 256 * 20
+        w.col(5).width = 256 * 30
+        w.col(7).width = 256 * 30
         # 写入数据
         excel_row = 1
-        for obj in licenseplate:
-            data_num = obj.carnum
+        for obj in Licenseplate:
+            data_remark = obj.remark
             data_province = obj.province
             data_city = obj.city
-            data_license = obj.license
-            dada_phonenum = obj.phonenum
-            w.write(excel_row, 0, data_num)
-            w.write(excel_row, 1, data_province)
-            w.write(excel_row, 2, data_city)
-            w.write(excel_row, 3, data_license)
-            w.write(excel_row, 4, dada_phonenum)
+            data_carnum= obj.carnum
+            data_licenseplate = obj.licenseplate
+            dada_phonenum = obj.phoneNum
+            data_author = obj.author
+            data_createdate=obj.createDate
+            w.write(excel_row, 0, data_province,style2)
+            w.write(excel_row, 1, data_city,style2)
+            w.write(excel_row, 2, data_carnum,style2)
+            w.write(excel_row, 3, data_licenseplate,style2)
+            w.write(excel_row, 4, dada_phonenum,style2)
+            w.write(excel_row, 5, data_remark,style2)
+            w.write(excel_row, 6, data_author,style2)
+            w.write(excel_row, 7, data_createdate,style1)
             excel_row += 1
             # 检测文件是够存在
         # 方框中代码是保存本地文件使用，如不需要请删除该代码
@@ -75,13 +121,13 @@ def downExcel(request):
             os.remove(r"test.xls")
         ws.save("test.xls")
         ############################
-        #sio =StringIO.StringIO()
-        #ws.save(sio)
-        #sio.seek(0)
-        response = HttpResponse(content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment; filename=test.xls'
-        #response.write(sio.getvalue())
-        ws.save(response)
-        return HttpResponse(response)
+        sio =BytesIO()
+        ws.save(sio)
+        sio.seek(0)
+        the_file_name = "test.xls"
+        response = HttpResponse(sio.getvalue(),content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
+        response.write(sio.getvalue())
+        return response
 
 # Create your views here.

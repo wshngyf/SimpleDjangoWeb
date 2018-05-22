@@ -22,6 +22,8 @@ urlpatterns = [
     path('index/',views.index),
     path('addData',views.addData),
     path('downExcel/',views.downExcel),
+    path('addLicense/', views.addLicense),
+    path('addTest/',views.addTest),
     path('admin/', admin.site.urls),
 
 ]
