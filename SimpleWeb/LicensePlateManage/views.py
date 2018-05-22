@@ -2,9 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from LicensePlateManage.models import LicensePlate
 from LicensePlateManage.models import PhoneNum
-from LicensePlateManage.serializer import LicenseSerializers
+from LicensePlateManage.serializer import LicenseSerializers,PhoneNumSerializers
 import time
-import  datetime as dt
+import  datetime
 import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
@@ -36,9 +36,38 @@ def index(request):
     #str={"rows": [{"province": "豫","city": "A","license": "00001","licenseplate": "豫A00001","phonenum": "13939112345","carnum": "2341243235345"}],"page": 1,"total": 1}
     return HttpResponse(str)
 
-
 def demo(request):
     return render(request, "demo.html")
+
+def license(request):
+    return render(request, "license.html")
+
+def licensejson(request):
+    phone=request.GET.get('phone')
+    plate=request.GET.get('plate')
+    time=request.GET.get('time')
+    pageSize = request.GET.get('pageSize')
+    page=int(request.GET.get('offset'))
+    if page is None:
+        page=1
+    if not phone=='':
+        licenseplate = PhoneNum.objects.filter(phonenum=phone)
+    elif not plate =='':
+        licenseplate = PhoneNum.objects.filter(licenseplate=plate)
+    elif not time =='':
+        licenseplate = PhoneNum.objects.filter(startdate=time)
+    else:
+        licenseplate = PhoneNum.objects.all()
+
+    paginator = Paginator(licenseplate, pageSize)
+    page=page/5+1
+    serializer = PhoneNumSerializers(paginator.page(page), many=True)
+
+    con=serializer.data
+    str=json.dumps({'rows': con,'page':page,'total':paginator.count})
+    #return render(request, "index.html")
+    #str={"rows": [{"province": "豫","city": "A","license": "00001","licenseplate": "豫A00001","phonenum": "13939112345","carnum": "2341243235345"}],"page": 1,"total": 1}
+    return HttpResponse(str)
 
 def addData(request):
     data=LicensePlate(province='豫',city='A',license='00002',licenseplate='豫A00002',phonenum='123321123432',carnum='123134234234234')
@@ -64,6 +93,8 @@ def addLicense(request):
     return HttpResponse("添加数据成功")
 
 def downExcel(request):
+    #dt = "2018-05-05 20:28:54"
+    #now_time = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     Licenseplate = PhoneNum.objects.all()
     if Licenseplate is None:
         return

@@ -25,5 +25,6 @@ urlpatterns = [
     path('addLicense/', views.addLicense),
     path('addTest/',views.addTest),
     path('admin/', admin.site.urls),
-
+    path('licensejson',views.licensejson),
+    path('license',views.license),
 ]
