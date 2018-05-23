@@ -128,7 +128,7 @@
 
                $('#datetimepicker1').datetimepicker({
         format: 'YYYY-MM-DD hh:mm',
-
+        defaultDate : new Date()
 
     });
  });
@@ -148,7 +148,16 @@
     }
 
        function DownloadData() {
-        window.location.href="localhost:8000/downExcel"
+$.ajax({
+            url: 'http://localhost:8000/saveExcel',
+            type: 'GET',
+             data:{starttime:$.trim($("#datetimepicker1").val()),},
+            success: function () {
+                console.log("Download file DONE!");
+                window.open("http://localhost:8000/downloadexcel")
+            }
+        });
+
     }
 
 </script>

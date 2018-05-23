@@ -42,6 +42,9 @@ def demo(request):
 def license(request):
     return render(request, "license.html")
 
+def downloadexcel(request):
+    return render(request,"download.html")
+
 def licensejson(request):
     nowtime = datetime.datetime.now()
     #nowtime = timenow.strftime('%Y-%m-%d %H:%M:%S', timenow.localtime(timenow.time()))
@@ -49,7 +52,7 @@ def licensejson(request):
     plate=request.GET.get('plate')
     time=request.GET.get('time')
 
-    pageSize = request.GET.get('pageSize')
+    pageSize = int(request.GET.get('pageSize'))
     page=int(request.GET.get('offset'))
     if page is None:
         page=1
@@ -64,7 +67,7 @@ def licensejson(request):
         licenseplate = PhoneNum.objects.all()
 
     paginator = Paginator(licenseplate, pageSize)
-    page=page/5+1
+    page=int(page/5+1)
     serializer = PhoneNumSerializers(paginator.page(page), many=True)
 
     con=serializer.data
@@ -97,10 +100,14 @@ def addLicense(request):
     data.save()
     return HttpResponse("添加数据成功")
 
-def downExcel(request):
-    #dt = "2018-05-05 20:28:54"
-    #now_time = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
-    Licenseplate = PhoneNum.objects.all()
+def saveExcel(request):
+    nowtime = datetime.datetime.now()
+    time=request.GET.get('starttime')
+    if not time == '':
+        time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
+        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime))
+    else:
+        Licenseplate = PhoneNum.objects.all()
     if Licenseplate is None:
         return
     # 居中格式
@@ -152,11 +159,12 @@ def downExcel(request):
             # 检测文件是够存在
         # 方框中代码是保存本地文件使用，如不需要请删除该代码
         ###########################
-        exist_file = os.path.exists("test.xls")
+        exist_file = os.path.exists(os.path.join('./static/file/test.xls'))
         if exist_file:
-            os.remove(r"test.xls")
-        ws.save("test.xls")
+            os.remove(os.path.join('./static/file/test.xls'))
+        ws.save("./static/file/test.xls")
         ############################
+        '''
         sio =BytesIO()
         ws.save(sio)
         sio.seek(0)
@@ -164,6 +172,7 @@ def downExcel(request):
         response = HttpResponse(sio.getvalue(),content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
         response.write(sio.getvalue())
-        return response
+        '''
+        return HttpResponse("导出成功")
 
 # Create your views here.

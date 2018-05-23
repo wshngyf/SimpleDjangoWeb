@@ -21,10 +21,11 @@ urlpatterns = [
     path('demo/',views.demo),
     path('index/',views.index),
     path('addData',views.addData),
-    path('downExcel/',views.downExcel),
+    path('saveExcel/',views.saveExcel),
     path('addLicense/', views.addLicense),
     path('addTest/',views.addTest),
     path('admin/', admin.site.urls),
     path('licensejson',views.licensejson),
     path('license',views.license),
+    path('downloadexcel', views.downloadexcel),
 ]
