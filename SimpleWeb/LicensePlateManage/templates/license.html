@@ -33,7 +33,7 @@
                         <input id="txtPlateNumber" type="text" class="form-control">
                     </div>
                     <div class="col-sm-4">
-                        <label class="control-label">手机号：</label>
+                        <label class="control-label">电话：</label>
                         <input id="txtPhone" type="text" class="form-control">
                     </div>
                     <div class="col-sm-4">
@@ -44,7 +44,9 @@
                 </div>
 
                 <div class="row text-right" style="margin-top:20px;">
+
                     <div class="col-sm-12">
+                        <input class="btn btn-primary" type="button" value="导出" onclick="DownloadData()">
                         <input class="btn btn-primary" type="button" value="查询" onclick="SearchData()">
                     </div>
                 </div>
@@ -83,24 +85,8 @@
         queryParams:queryParams,
          columns: [
              {
-                 field: 'province', // 返回json数据中的name
-                 title: '省份', // 表格表头显示文字
-                 align: 'center', // 左右居中
-                 valign: 'middle'// 上下居中
-
-             }, {
-                 field: 'city',
-                 title: '城市',
-                 align: 'center',
-                 valign: 'middle'
-             }, {
-                 field: 'carnum',
-                 title: '牌照',
-                 align: 'center',
-                 valign: 'middle',
-             }, {
                  field: 'licenseplate',
-                 title: "完整牌照",
+                 title: "车牌号",
                  align: 'center',
                  valign: 'middle',
              }, {
@@ -116,6 +102,11 @@
              }, {
                  field: 'author',
                  title: "采集人",
+                 align: 'center',
+                 valign: 'middle',
+             },{
+                 field: 'createDate',
+                 title: "采集时间",
                  align: 'center',
                  valign: 'middle',
              },
@@ -137,7 +128,7 @@
 
                $('#datetimepicker1').datetimepicker({
         format: 'YYYY-MM-DD hh:mm',
-        locale: moment.locale('zh-cn'),
+
 
     });
  });
@@ -154,6 +145,10 @@
 
      function SearchData() {
         $('#table').bootstrapTable('refresh', { pageNumber: 1 });
+    }
+
+       function DownloadData() {
+        window.location.href="localhost:8000/downExcel"
     }
 
 </script>

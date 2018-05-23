@@ -10,4 +10,4 @@ class LicenseSerializers(serializers.ModelSerializer):
 class PhoneNumSerializers(serializers.ModelSerializer):
     class Meta:
         model=PhoneNum
-        fields=('province','city','carnum','licenseplate','phoneNum','remark','author')
+        fields=('licenseplate','phoneNum','remark','author','createDate')

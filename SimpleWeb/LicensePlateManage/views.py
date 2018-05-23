@@ -4,7 +4,7 @@ from LicensePlateManage.models import LicensePlate
 from LicensePlateManage.models import PhoneNum
 from LicensePlateManage.serializer import LicenseSerializers,PhoneNumSerializers
 import time
-import  datetime
+import datetime
 import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
@@ -43,9 +43,12 @@ def license(request):
     return render(request, "license.html")
 
 def licensejson(request):
+    nowtime = datetime.datetime.now()
+    #nowtime = timenow.strftime('%Y-%m-%d %H:%M:%S', timenow.localtime(timenow.time()))
     phone=request.GET.get('phone')
     plate=request.GET.get('plate')
     time=request.GET.get('time')
+
     pageSize = request.GET.get('pageSize')
     page=int(request.GET.get('offset'))
     if page is None:
@@ -55,7 +58,8 @@ def licensejson(request):
     elif not plate =='':
         licenseplate = PhoneNum.objects.filter(licenseplate=plate)
     elif not time =='':
-        licenseplate = PhoneNum.objects.filter(startdate=time)
+        time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
+        licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime))
     else:
         licenseplate = PhoneNum.objects.all()
 
@@ -87,7 +91,8 @@ def addLicense(request):
     carnum=request.GET.get('carnum')
     remark=request.GET.get('remark')
     author=request.GET.get('author')
-
+    if province is None:
+        return
     data=PhoneNum(province=province,city=city,phoneNum=phonenum,carnum=carnum,licenseplate=province+city+carnum,remark=remark,createDate=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),author=author)
     data.save()
     return HttpResponse("添加数据成功")
@@ -156,7 +161,7 @@ def downExcel(request):
         ws.save(sio)
         sio.seek(0)
         the_file_name = "test.xls"
-        response = HttpResponse(sio.getvalue(),content_type='application/vnd.ms-excel')
+        response = HttpResponse(sio.getvalue(),content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
         response.write(sio.getvalue())
         return response
