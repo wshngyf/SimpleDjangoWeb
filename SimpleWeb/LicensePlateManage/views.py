@@ -57,14 +57,14 @@ def licensejson(request):
     if page is None:
         page=1
     if not phone=='':
-        licenseplate = PhoneNum.objects.filter(phonenum=phone)
+        licenseplate = PhoneNum.objects.filter(phonenum=phone).order_by("-createDate")
     elif not plate =='':
-        licenseplate = PhoneNum.objects.filter(licenseplate=plate)
+        licenseplate = PhoneNum.objects.filter(licenseplate=plate).order_by("-createDate")
     elif not time =='':
         time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
-        licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime))
+        licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime)).order_by("-createDate")
     else:
-        licenseplate = PhoneNum.objects.all()
+        licenseplate = PhoneNum.objects.all().order_by("-createDate")
 
     paginator = Paginator(licenseplate, pageSize)
     page=int(page/5+1)
@@ -98,16 +98,17 @@ def addLicense(request):
         return
     data=PhoneNum(province=province,city=city,phoneNum=phonenum,carnum=carnum,licenseplate=province+city+carnum,remark=remark,createDate=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),author=author)
     data.save()
-    return HttpResponse("添加数据成功")
+    str = json.dumps({'success': '添加数据成功',})
+    return HttpResponse(str)
 
 def saveExcel(request):
     nowtime = datetime.datetime.now()
     time=request.GET.get('starttime')
     if not time == '':
         time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
-        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime))
+        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime)).order_by("-createDate")
     else:
-        Licenseplate = PhoneNum.objects.all()
+        Licenseplate = PhoneNum.objects.all().order_by("-createDate")
     if Licenseplate is None:
         return
     # 居中格式
