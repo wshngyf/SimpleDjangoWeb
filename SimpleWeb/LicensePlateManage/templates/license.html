@@ -9,9 +9,12 @@
     <!-- 新 Bootstrap 核心 CSS 文件 -->
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.css" rel="stylesheet">
-    <script src="../static/js/jquery.js"></script>
-    <script src="../static/js/bootstrap.min.js"></script>
-    <script src="../static/js/bootstrap-table.js"></script>
+	<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <!-- <script src="../static/js/jquery.js"></script> -->
+   <!--  <script src="../static/js/bootstrap.min.js">-->
+      <script src="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+   <!-- <script src="../static/js/bootstrap-table.js"></script>-->
      <!-- 时间选择器-->
       <script src="https://cdn.bootcss.com/moment.js/2.18.1/moment-with-locales.min.js"></script>
       <link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
@@ -60,7 +63,7 @@
 <script type="text/javascript">
  $(function () {
     var t =  $("#table").bootstrapTable({ // 对应table标签的id
-         url: 'http://localhost:8000/licensejson',
+         url: '/licensejson',
          method: 'get',
          dataType: "json",
          striped: true,//设置为 true 会有隔行变色效果
@@ -126,11 +129,19 @@
         $(".pull-right").css("display", "block");
       });
 
-               $('#datetimepicker1').datetimepicker({
+              var date1 = $('#datetimepicker1').datetimepicker({
         format: 'YYYY-MM-DD hh:mm',
+                  useCurrent:true,
         defaultDate : new Date()
-
     });
+
+              date1.on('dp.change', function (e) {
+                     date1.data("DateTimePicker").focusOnShow(True);
+                                  console.info("加载数据失败111");
+
+              });
+
+
  });
    //查询条件
     function queryParams(params) {
@@ -149,7 +160,7 @@
 
        function DownloadData() {
 $.ajax({
-            url: 'http://localhost:8000/saveExcel',
+            url: '/saveExcel',
             type: 'GET',
              data:{starttime:$.trim($("#datetimepicker1").val()),},
             success: function () {

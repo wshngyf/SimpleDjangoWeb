@@ -75,18 +75,19 @@ def licensejson(request):
     #return render(request, "index.html")
     #str={"rows": [{"province": "豫","city": "A","license": "00001","licenseplate": "豫A00001","phonenum": "13939112345","carnum": "2341243235345"}],"page": 1,"total": 1}
     return HttpResponse(str)
-
+'''
 def addData(request):
     data=LicensePlate(province='豫',city='A',license='00002',licenseplate='豫A00002',phonenum='123321123432',carnum='123134234234234')
     data.save()
     return HttpResponse("添加数据成功")
-
+'''
 #createDate=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+'''
 def addTest(request):
     data=PhoneNum(province='豫',city='A',phoneNum='19937127339',carnum='00001',remark='',createDate=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
     data.save()
     return HttpResponse("添加数据成功")
-
+'''
 def addLicense(request):
     province=request.GET.get('province')
     city=request.GET.get('city')

@@ -18,13 +18,13 @@ from django.urls import path
 from LicensePlateManage import views
 
 urlpatterns = [
-    path('demo/',views.demo),
-    path('index/',views.index),
-    path('addData',views.addData),
+    #path('demo/',views.demo),
+    #path('index/',views.index),
+    #path('addData',views.addData),
     path('saveExcel/',views.saveExcel),
     path('addLicense/', views.addLicense),
-    path('addTest/',views.addTest),
-    path('admin/', admin.site.urls),
+    #path('addTest/',views.addTest),
+    #path('admin/', admin.site.urls),
     path('licensejson',views.licensejson),
     path('license',views.license),
     path('downloadexcel', views.downloadexcel),
