@@ -36,8 +36,8 @@
                         <input id="txtPlateNumber" type="text" class="form-control">
                     </div>
                     <div class="col-sm-4">
-                        <label class="control-label">电话：</label>
-                        <input id="txtPhone" type="text" class="form-control">
+                        <label class="control-label">采集人：</label>
+                        <input id="author" type="text" class="form-control">
                     </div>
                     <div class="col-sm-4">
                         <label class="control-label">采集时间：</label>
@@ -62,6 +62,16 @@
 </div>
 <script type="text/javascript">
  $(function () {
+
+
+              var date1 = $('#datetimepicker1').datetimepicker({
+        format: 'YYYY-MM-DD hh:mm',
+                  useCurrent:true,
+        defaultDate : new Date(),
+    });
+
+
+
     var t =  $("#table").bootstrapTable({ // 对应table标签的id
          url: '/licensejson',
          method: 'get',
@@ -129,17 +139,8 @@
         $(".pull-right").css("display", "block");
       });
 
-              var date1 = $('#datetimepicker1').datetimepicker({
-        format: 'YYYY-MM-DD hh:mm',
-                  useCurrent:true,
-        defaultDate : new Date()
-    });
 
-              date1.on('dp.change', function (e) {
-                     date1.data("DateTimePicker").focusOnShow(True);
-                                  console.info("加载数据失败111");
 
-              });
 
 
  });
@@ -149,7 +150,7 @@
             offset: params.offset,//从数据库第几条记录开始
             pageSize: params.limit,//找多少条
             plate: $.trim($("#txtPlateNumber").val()),
-            phone: $.trim($("#txtPhone").val()),
+            author: $.trim($("#author").val()),
             time: $.trim($("#datetimepicker1").val()),
         };
     }
@@ -162,7 +163,7 @@
 $.ajax({
             url: '/saveExcel',
             type: 'GET',
-             data:{starttime:$.trim($("#datetimepicker1").val()),},
+             data:{starttime:$.trim($("#datetimepicker1").val()),author:$.trim($("#author").val()),},
             success: function () {
                 console.log("Download file DONE!");
                 window.open("http://localhost:8000/downloadexcel")

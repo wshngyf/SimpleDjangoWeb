@@ -48,16 +48,16 @@ def downloadexcel(request):
 def licensejson(request):
     nowtime = datetime.datetime.now()
     #nowtime = timenow.strftime('%Y-%m-%d %H:%M:%S', timenow.localtime(timenow.time()))
-    phone=request.GET.get('phone')
+    author=request.GET.get('author')
     plate=request.GET.get('plate')
     time=request.GET.get('time')
 
     pageSize = int(request.GET.get('pageSize'))
     page=int(request.GET.get('offset'))
     if page is None:
-        page=1
-    if not phone=='':
-        licenseplate = PhoneNum.objects.filter(phonenum=phone).order_by("-createDate")
+        page = 1
+    if not author == '':
+        licenseplate = PhoneNum.objects.filter(author=author).order_by("-createDate")
     elif not plate =='':
         licenseplate = PhoneNum.objects.filter(licenseplate=plate).order_by("-createDate")
     elif not time =='':
@@ -104,10 +104,11 @@ def addLicense(request):
 
 def saveExcel(request):
     nowtime = datetime.datetime.now()
+    author = request.GET.get('author')
     time=request.GET.get('starttime')
     if not time == '':
         time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
-        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime)).order_by("-createDate")
+        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime),author_contains=author).order_by("-createDate")
     else:
         Licenseplate = PhoneNum.objects.all().order_by("-createDate")
     if Licenseplate is None:
