@@ -14,7 +14,7 @@ class PhoneNum(models.Model):
     province=models.CharField(max_length=10)
     carnum=models.CharField(max_length=8,default='0')
     city=models.CharField(max_length=10)
-    licenseplate = models.CharField(max_length=10,default='')
+    licenseplate = models.CharField(max_length=10,unique=True,default='')
     phoneNum=models.CharField(max_length=13)
     license=models.CharField(max_length=10,default='')
     remark=models.CharField(max_length=40,default='无')
