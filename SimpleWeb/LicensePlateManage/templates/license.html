@@ -95,7 +95,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
          pagination: true, //分页
          // paginationLoop:true,//设置为 true 启用分页条无限循环的功能。
          showToggle: false,//是否显示 切换试图（table/card）按钮
-         showColumns: true,//是否显示 内容列下拉框
+         showColumns: false,//是否显示 内容列下拉框
          pageNumber: 1,//如果设置了分页，首页页码
          // showPaginationSwitch:true,//是否显示 数据条数选择框
          pageSize: 20,//如果设置了分页，页面数据条数
@@ -190,7 +190,7 @@ $.ajax({
              data:{starttime:$.trim($("#datetimepicker1").val()),author:$.trim($("#author").val()),},
             success: function () {
                 console.log("Download file DONE!");
-                window.open("http://localhost:8000/downloadexcel")
+                window.open("/downloadexcel")
             }
         });
 
