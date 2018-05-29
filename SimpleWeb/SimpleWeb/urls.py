@@ -22,6 +22,7 @@ urlpatterns = [
     #path('index/',views.index),
     #path('addData',views.addData),
     path('saveExcel/',views.saveExcel),
+    path('saveExcelModel',views.saveExcelModel),
     path('addLicense/', views.addLicense),
     #path('addTest/',views.addTest),
     #path('admin/', admin.site.urls),

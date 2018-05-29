@@ -62,12 +62,26 @@
 </div>
 <script type="text/javascript">
  $(function () {
-
+Date.prototype.Format = function (fmt) { //author: meizz
+    var o = {
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        "S": this.getMilliseconds() //毫秒
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
 
               var date1 = $('#datetimepicker1').datetimepicker({
-        format: 'YYYY-MM-DD hh:mm',
+        format: 'YYYY-MM-DD HH:mm',
                   useCurrent:true,
-        defaultDate : new Date(),
+        defaultDate : new Date().Format("yyyy-MM-dd"),
     });
 
 
@@ -98,6 +112,16 @@
         queryParams:queryParams,
          columns: [
              {
+                 field: '',
+                 title: "序号",
+                 align: 'center',
+                 valign: 'middle',
+                 formatter: function (value, row, index) {
+            var pageSize = $('#table').bootstrapTable('getOptions').pageSize;     //通过table的#id 得到每页多少条
+            var pageNumber = $('#table').bootstrapTable('getOptions').pageNumber; //通过table的#id 得到当前第几页
+            return pageSize * (pageNumber - 1) + index + 1;    // 返回每条的序号： 每页条数 *（当前页 - 1 ）+ 序号
+        }
+             },{
                  field: 'licenseplate',
                  title: "车牌号",
                  align: 'center',
@@ -147,7 +171,7 @@
    //查询条件
     function queryParams(params) {
         return {
-            offset: params.offset,//从数据库第几条记录开始
+            page: (params.offset / params.limit) + 1,//从数据库第几条记录开始
             pageSize: params.limit,//找多少条
             plate: $.trim($("#txtPlateNumber").val()),
             author: $.trim($("#author").val()),
@@ -161,7 +185,7 @@
 
        function DownloadData() {
 $.ajax({
-            url: '/saveExcel',
+            url: '/saveExcelModel',
             type: 'GET',
              data:{starttime:$.trim($("#datetimepicker1").val()),author:$.trim($("#author").val()),},
             success: function () {

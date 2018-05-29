@@ -53,11 +53,11 @@ def licensejson(request):
     time=request.GET.get('time')
 
     pageSize = int(request.GET.get('pageSize'))
-    page=int(request.GET.get('offset'))
+    page=int(request.GET.get('page'))
     if page is None:
         page = 1
     if not author == '':
-        licenseplate = PhoneNum.objects.filter(author=author).order_by("-createDate")
+        licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime),author=author).order_by("-createDate")
     elif not plate =='':
         licenseplate = PhoneNum.objects.filter(licenseplate=plate).order_by("-createDate")
     elif not time =='':
@@ -67,7 +67,7 @@ def licensejson(request):
         licenseplate = PhoneNum.objects.all().order_by("-createDate")
 
     paginator = Paginator(licenseplate, pageSize)
-    page=int(page/5+1)
+
     serializer = PhoneNumSerializers(paginator.page(page), many=True)
 
     con=serializer.data
@@ -158,6 +158,112 @@ def saveExcel(request):
             w.write(excel_row, 5, data_remark,style2)
             w.write(excel_row, 6, data_author,style2)
             w.write(excel_row, 7, data_createdate,style1)
+            excel_row += 1
+            # 检测文件是够存在
+        # 方框中代码是保存本地文件使用，如不需要请删除该代码
+        ###########################
+        exist_file = os.path.exists(os.path.join('./static/file/test.xls'))
+        if exist_file:
+            os.remove(os.path.join('./static/file/test.xls'))
+        ws.save("./static/file/test.xls")
+        ############################
+        '''
+        sio =BytesIO()
+        ws.save(sio)
+        sio.seek(0)
+        the_file_name = "test.xls"
+        response = HttpResponse(sio.getvalue(),content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
+        response.write(sio.getvalue())
+        '''
+        return HttpResponse("导出成功")
+
+rows1=r'车辆信息采集'
+rows2=r'确保采集人姓名和机器人系统业务员保持一致'
+def saveExcelModel(request):
+    nowtime = datetime.datetime.now()
+    author = request.GET.get('author')
+    time=request.GET.get('starttime')
+    if not author=='':
+        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime), author=author).order_by("-createDate")
+    elif not time == '':
+        time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
+        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime)).order_by("-createDate")
+    else:
+        Licenseplate = PhoneNum.objects.all().order_by("-createDate")
+    if Licenseplate is None:
+        return
+    # 居中格式
+    #alignment = Alignment()
+    #alignment.horz = Alignment.HORZ_CENTER
+    #alignment.vert = Alignment.VERT_CENTER
+    #style2 = XFStyle()
+    #style2.alignment=alignment
+
+    # 日期格式
+    #style1 = XFStyle()
+    #style1.num_format_str = 'M/D/YY h:mm'
+    #style1.alignment = alignment
+
+    if Licenseplate:
+        ws = Workbook(encoding='utf-8')
+        w = ws.add_sheet(u"上传模板")
+        #w.write(0, 0, u"省份",style2)
+        #w.write(0, 1, u"城市",style2)
+        #w.write(0, 2, u"牌号",style2)
+        #参数 1行 2跨行数 3列 4跨列数 5显示内容 6样式
+        w.write_merge(0,0,0,12,rows1)
+        w.write_merge(1,1,0,12,rows2)
+        w.write(2, 0, u"车牌号")
+        w.write(2, 1, u"车架号")
+        w.write(2, 2, u"发动机号")
+        w.write(2, 3, u"车主证件号码")
+        w.write(2, 4, u"品牌型号")
+        w.write(2, 5, u"注册日期")
+        w.write(2, 6, u"去年投保公司")
+        w.write(2, 7, u"交强险到期时间")
+        w.write(2, 8, u"商业险到期时间")
+        w.write(2, 9, u"客户姓名")
+        w.write(2, 10, u"客户电话1")
+        w.write(2, 11, u"客户电话2")
+        w.write(2, 12, u"客户备注")
+        w.write(2, 13, u"客户类别")
+        w.write(2, 14, u"业务员姓名")
+        w.write(2, 15, u"业务员账号")
+
+        w.col(0).width = 256 * 20
+        w.col(1).width = 256 * 30
+        w.col(2).width = 256 * 30
+        w.col(3).width = 256 * 30
+        w.col(4).width = 256 * 30
+        w.col(5).width = 256 * 30
+        w.col(6).width = 256 * 30
+        w.col(7).width = 256 * 30
+        w.col(8).width = 256 * 30
+        w.col(9).width = 256 * 30
+        w.col(10).width = 256 * 30
+        w.col(11).width = 256 * 30
+        w.col(12).width = 256 * 30
+        w.col(13).width = 256 * 30
+        w.col(14).width = 256 * 30
+        w.col(15).width = 256 * 30
+        # 写入数据
+        excel_row = 3
+        for obj in Licenseplate:
+            data_remark = obj.remark
+            data_province = obj.province
+            data_city = obj.city
+            data_carnum= obj.carnum
+            data_licenseplate = obj.licenseplate
+            dada_phonenum = obj.phoneNum
+            data_author = obj.author
+            data_createdate=obj.createDate
+            #车牌号放到0列
+            w.write(excel_row, 0, data_licenseplate)
+            w.write(excel_row, 10, dada_phonenum)
+            w.write(excel_row, 12, data_remark)
+            w.write(excel_row, 14, data_author)
+            #w.write(excel_row, 7, data_createdate,style1)
             excel_row += 1
             # 检测文件是够存在
         # 方框中代码是保存本地文件使用，如不需要请删除该代码
