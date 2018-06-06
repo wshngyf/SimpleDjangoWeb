@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from LicensePlateManage.models import LicensePlate
 from LicensePlateManage.models import PhoneNum
-from LicensePlateManage.serializer import LicenseSerializers,PhoneNumSerializers
+from LicensePlateManage.serializer import PhoneNumSerializers
 import time
 import datetime
 import json
@@ -11,30 +10,6 @@ from django.contrib.auth.decorators import login_required
 from xlwt import *
 import os
 from io import BytesIO
-def index(request):
-    phone=request.GET.get('phone')
-    plate=request.GET.get('plate')
-    time=request.GET.get('time')
-    pageSize = request.GET.get('pageSize')
-    page=int(request.GET.get('offset'))
-    if not phone=='':
-        licenseplate = LicensePlate.objects.filter(phonenum=phone)
-    elif not plate =='':
-        licenseplate = LicensePlate.objects.filter(licenseplate=plate)
-    elif not time =='':
-        licenseplate = LicensePlate.objects.filter(startdate=time)
-    else:
-        licenseplate = LicensePlate.objects.all()
-
-    paginator = Paginator(licenseplate, pageSize)
-    page=page/5+1
-    serializer = LicenseSerializers(paginator.page(page), many=True)
-
-    con=serializer.data
-    str=json.dumps({'rows': con,'page':page,'total':paginator.count})
-    #return render(request, "index.html")
-    #str={"rows": [{"province": "豫","city": "A","license": "00001","licenseplate": "豫A00001","phonenum": "13939112345","carnum": "2341243235345"}],"page": 1,"total": 1}
-    return HttpResponse(str)
 
 def demo(request):
     return render(request, "demo.html")
@@ -97,10 +72,19 @@ def addLicense(request):
     author=request.GET.get('author')
     if province is None:
         return
-    data=PhoneNum(province=province,city=city,phoneNum=phonenum,carnum=carnum,licenseplate=province+city+carnum,remark=remark,createDate=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),author=author)
-    data.save()
-    str = json.dumps({'success': '添加数据成功',})
+    licenseplate=province + city + carnum
+    try:
+        PhoneNum.objects.get(licenseplate=licenseplate)
+    except PhoneNum.DoesNotExist:
+        data = PhoneNum(province=province, city=city, phoneNum=phonenum, carnum=carnum, licenseplate=licenseplate,
+                        remark=remark,
+                        author=author)
+        data.save()
+        str = json.dumps({'resultCode': 0, 'resultMessage': '添加成功', 'data': {'licenseplate': licenseplate, }})
+        return HttpResponse(str)
+    str = json.dumps({'resultCode': 100, 'resultMessage': '该号码已存在', 'data': {'licenseplate': licenseplate, }})
     return HttpResponse(str)
+
 
 def saveExcel(request):
     nowtime = datetime.datetime.now()
@@ -178,8 +162,8 @@ def saveExcel(request):
         '''
         return HttpResponse("导出成功")
 
-rows1=r'车辆信息采集'
-rows2=r'确保采集人姓名和机器人系统业务员保持一致'
+rows1=r'客户信息汇总'
+rows2=r'确保业务员姓名和机器人系统业务员保持一致'
 def saveExcelModel(request):
     nowtime = datetime.datetime.now()
     author = request.GET.get('author')
