@@ -11,5 +11,5 @@ class PhoneNum(models.Model):
     carnum=models.CharField(max_length=8,default='0')
     author=models.CharField(max_length=10,default='无')
     remark=models.CharField(max_length=40,default='无')
-    createDate=models.DateTimeField(null=True,default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    createDate=models.DateTimeField(null=True,default='')
 

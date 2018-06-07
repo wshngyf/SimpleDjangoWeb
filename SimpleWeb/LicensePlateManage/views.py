@@ -77,7 +77,7 @@ def addLicense(request):
         PhoneNum.objects.get(licenseplate=licenseplate)
     except PhoneNum.DoesNotExist:
         data = PhoneNum(province=province, city=city, phoneNum=phonenum, carnum=carnum, licenseplate=licenseplate,
-                        remark=remark,
+                        remark=remark,createDate=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),
                         author=author)
         data.save()
         str = json.dumps({'resultCode': 0, 'resultMessage': '添加成功', 'data': {'licenseplate': licenseplate, }})
