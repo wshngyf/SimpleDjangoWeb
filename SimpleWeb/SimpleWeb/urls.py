@@ -25,7 +25,8 @@ urlpatterns = [
     path('saveExcelModel',views.saveExcelModel),
     path('addLicense/', views.addLicense),
     #path('addTest/',views.addTest),
-    #path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
+    #password fey123456
     path('licensejson',views.licensejson),
     path('license',views.license),
     path('downloadexcel', views.downloadexcel),
