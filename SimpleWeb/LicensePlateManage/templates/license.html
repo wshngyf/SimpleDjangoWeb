@@ -31,18 +31,21 @@
         <div class="panel-body">
             <form class="form-inline">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-5">
                         <label class="control-label">车牌号：</label>
                         <input id="txtPlateNumber" type="text" class="form-control">
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-5">
                         <label class="control-label">采集人：</label>
                         <input id="author" type="text" class="form-control">
                     </div>
-                    <div class="col-sm-4">
-                        <label class="control-label">采集时间：</label>
+                       <div class="col-sm-5">
+                        <label class="control-label">开始时间：</label>
                         <input type='text' class="form-control" id='datetimepicker1' />
-
+                    </div>
+                      <div class="col-sm-5">
+                        <label class="control-label">结束时间：</label>
+                        <input type='text' class="form-control" id='datetimepicker2' />
                     </div>
                 </div>
 
@@ -82,6 +85,11 @@ Date.prototype.Format = function (fmt) { //author: meizz
         format: 'YYYY-MM-DD HH:mm',
                   useCurrent:true,
         defaultDate : new Date().Format("yyyy-MM-dd"),
+    });
+              var date2 = $('#datetimepicker2').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm',
+                  useCurrent:true,
+        defaultDate : new Date().Format("yyyy-MM-dd hh:mm"),
     });
 
 
@@ -175,7 +183,8 @@ Date.prototype.Format = function (fmt) { //author: meizz
             pageSize: params.limit,//找多少条
             plate: $.trim($("#txtPlateNumber").val()),
             author: $.trim($("#author").val()),
-            time: $.trim($("#datetimepicker1").val()),
+            starttime: $.trim($("#datetimepicker1").val()),
+            endtime:$.trim($("#datetimepicker2").val()),
         };
     }
 
@@ -187,7 +196,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
 $.ajax({
             url: '/saveExcelModel',
             type: 'GET',
-             data:{starttime:$.trim($("#datetimepicker1").val()),author:$.trim($("#author").val()),},
+             data:{starttime:$.trim($("#datetimepicker1").val()),endtime:$.trim($("#datetimepicker2").val()),author:$.trim($("#author").val()),},
             success: function () {
                 console.log("Download file DONE!");
                 window.open("/downloadexcel")

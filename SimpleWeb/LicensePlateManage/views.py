@@ -25,19 +25,23 @@ def licensejson(request):
     #nowtime = timenow.strftime('%Y-%m-%d %H:%M:%S', timenow.localtime(timenow.time()))
     author=request.GET.get('author')
     plate=request.GET.get('plate')
-    time=request.GET.get('time')
-
+    starttime=request.GET.get('starttime')
+    endtime=request.GET.get('endtime')
+    if not endtime =='':
+        nowendtime= datetime.datetime.strptime(endtime, "%Y-%m-%d %H:%M")
+    else:
+        nowendtime=nowtime
     pageSize = int(request.GET.get('pageSize'))
     page=int(request.GET.get('page'))
     if page is None:
         page = 1
     if not author == '':
-        licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime),author=author).order_by("-createDate")
+        licenseplate = PhoneNum.objects.filter(createDate__range=(starttime, nowendtime),author=author).order_by("-createDate")
     elif not plate =='':
         licenseplate = PhoneNum.objects.filter(licenseplate=plate).order_by("-createDate")
-    elif not time =='':
-        time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
-        licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime)).order_by("-createDate")
+    elif not starttime =='':
+        time = datetime.datetime.strptime(starttime, "%Y-%m-%d %H:%M")
+        licenseplate = PhoneNum.objects.filter(createDate__range=(starttime, nowendtime)).order_by("-createDate")
     else:
         licenseplate = PhoneNum.objects.all().order_by("-createDate")
 
@@ -89,10 +93,15 @@ def addLicense(request):
 def saveExcel(request):
     nowtime = datetime.datetime.now()
     author = request.GET.get('author')
-    time=request.GET.get('starttime')
-    if not time == '':
-        time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
-        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime),author_contains=author).order_by("-createDate")
+    starttime=request.GET.get('starttime')
+    endtime=request.GET.get('endtime')
+    if not endtime =='':
+        nowendtime= datetime.datetime.strptime(endtime, "%Y-%m-%d %H:%M")
+    else:
+        nowendtime=nowtime
+    if not starttime == '':
+        time = datetime.datetime.strptime(starttime, "%Y-%m-%d %H:%M")
+        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowendtime),author_contains=author).order_by("-createDate")
     else:
         Licenseplate = PhoneNum.objects.all().order_by("-createDate")
     if Licenseplate is None:
@@ -168,11 +177,16 @@ def saveExcelModel(request):
     nowtime = datetime.datetime.now()
     author = request.GET.get('author')
     time=request.GET.get('starttime')
+    endtime=request.GET.get('endtime')
+    if not endtime == '':
+        nowendtime = datetime.datetime.strptime(endtime, "%Y-%m-%d %H:%M")
+    else:
+        nowendtime = nowtime
     if not author=='':
-        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime), author=author).order_by("-createDate")
+        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowendtime), author=author).order_by("-createDate")
     elif not time == '':
         time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M")
-        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowtime)).order_by("-createDate")
+        Licenseplate = PhoneNum.objects.filter(createDate__range=(time, nowendtime)).order_by("-createDate")
     else:
         Licenseplate = PhoneNum.objects.all().order_by("-createDate")
     if Licenseplate is None:
@@ -211,9 +225,10 @@ def saveExcelModel(request):
         w.write(2, 10, u"客户电话1")
         w.write(2, 11, u"客户电话2")
         w.write(2, 12, u"客户备注")
-        w.write(2, 13, u"客户类别")
-        w.write(2, 14, u"业务员姓名")
-        w.write(2, 15, u"业务员账号")
+        w.write(2, 13, u"客户备注2")
+        w.write(2, 14, u"客户类别")
+        w.write(2, 15, u"业务员姓名")
+        w.write(2, 16, u"业务员账号")
 
         w.col(0).width = 256 * 20
         w.col(1).width = 256 * 30
@@ -231,6 +246,7 @@ def saveExcelModel(request):
         w.col(13).width = 256 * 30
         w.col(14).width = 256 * 30
         w.col(15).width = 256 * 30
+        w.col(16).width = 256 * 30
         # 写入数据
         excel_row = 3
         for obj in Licenseplate:
@@ -246,7 +262,7 @@ def saveExcelModel(request):
             w.write(excel_row, 0, data_licenseplate)
             w.write(excel_row, 10, dada_phonenum)
             w.write(excel_row, 12, data_remark)
-            w.write(excel_row, 14, data_author)
+            w.write(excel_row, 15, data_author)
             #w.write(excel_row, 7, data_createdate,style1)
             excel_row += 1
             # 检测文件是够存在
